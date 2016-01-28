@@ -204,17 +204,20 @@ $(EXECUTABLE):	$(addprefix build/, $(EXEOBJS)) $(LIBRARY)
 	if [ ! -e terra  ]; then ln -s $(EXECUTABLE) terra; fi;
 
 $(BIN2C):	src/bin2c.c
+	@echo "========================================"
 	$(CC) -O3 -o $@ $<
 
 
 #rule for packaging lua code into a header file
 # fix narrowing warnings by using unsigned char
-build/%.h:	src/%.lua $(PACKAGE_DEPS)
-	$(LUAJIT) -bg $< -t h - | sed "s/char/unsigned char/" > $@
+build/%.h:	src/%.lua $(BIN2C) $(PACKAGE_DEPS)
+	# $(LUAJIT) -bg $< -t h - | sed "s/char/unsigned char/" > $@
+	$(LUAJIT) -bg $< $(basename $<).dat && $(BIN2C) $(basename $<).dat $@ $(BCNAME) luaJIT_BC_$(basename $(notdir $<))
+# rm $(basename $<).dat
 
 #run clang on a C file to extract the header search paths for this architecture
 #genclangpaths.lua find the path arguments and formats them into a C file that is included by the cwrapper
-#to configure the paths	
+#to configure the paths
 build/clangpaths.h:	src/dummy.c $(PACKAGE_DEPS) src/genclangpaths.lua
 	$(LUAJIT) src/genclangpaths.lua $@ $(CLANG) $(CUDA_INCLUDES)
 
