@@ -8,6 +8,14 @@
 extern "C" {
 #endif
 
+#define LUA_COMPAT_ALL
+#define LUA_GLOBALSINDEX    LUA_RIDX_GLOBALS
+	
+// #define luaL_reg           luaL_Reg
+// #define luaL_putchar(B,c)   luaL_addchar(B,c)
+// #define lua_open            luaL_newstate
+
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
@@ -36,5 +44,5 @@ void terra_llvmshutdown();
 #if __cplusplus
 } /*extern C*/
 #endif
-    
+
 #endif

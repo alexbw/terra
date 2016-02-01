@@ -45,9 +45,16 @@ LUAJIT_VERSION ?= LuaJIT-2.0.4
 LUAJIT_URL ?= http://luajit.org/download/$(LUAJIT_VERSION).tar.gz
 LUAJIT_TAR ?= $(LUAJIT_VERSION).tar.gz
 LUAJIT_DIR ?= build/$(LUAJIT_VERSION)
-LUAJIT_LIB ?= $(LUAJIT_PREFIX)/lib/libluajit-5.1.a
+
+# TODO
+# LUAJIT_LIB ?= $(LUAJIT_PREFIX)/lib/libluajit-5.1.a
+LUAJIT_LIB ?= $(LUAJIT_PREFIX)/lib/liblua.a
+
 LUAJIT_INCLUDE ?= $(dir $(shell ls 2>/dev/null $(LUAJIT_PREFIX)/include/luajit-2.0/lua.h || ls 2>/dev/null $(LUAJIT_PREFIX)/include/lua.h || echo $(LUAJIT_PREFIX)/include/luajit-2.0/lua.h))
-LUAJIT ?= $(LUAJIT_PREFIX)/bin/luajit
+
+# TODO
+# LUAJIT ?= $(LUAJIT_PREFIX)/bin/luajit
+LUAJIT ?= $(LUAJIT_PREFIX)/bin/lua
 
 FLAGS += -I build -I $(LUAJIT_INCLUDE) -I release/include/terra  -I $(shell $(LLVM_CONFIG) --includedir) -I $(CLANG_PREFIX)/include
 
@@ -211,9 +218,10 @@ $(BIN2C):	src/bin2c.c
 #rule for packaging lua code into a header file
 # fix narrowing warnings by using unsigned char
 build/%.h:	src/%.lua $(BIN2C) $(PACKAGE_DEPS)
-	# $(LUAJIT) -bg $< -t h - | sed "s/char/unsigned char/" > $@
-	$(LUAJIT) -bg $< $(basename $<).dat && $(BIN2C) $(basename $<).dat $@ $(BCNAME) luaJIT_BC_$(basename $(notdir $<))
-# rm $(basename $<).dat
+	# $(LUAJIT) -bg $< $(basename $<).dat && $(BIN2C) $(basename $<).dat $@ $(BCNAME) luaJIT_BC_$(basename $(notdir $<))
+	luac -o $(basename $<).dat $< && $(BIN2C) $(basename $<).dat $@ $(BCNAME) luaJIT_BC_$(basename $(notdir $<))
+	rm $(basename $<).dat
+
 
 #run clang on a C file to extract the header search paths for this architecture
 #genclangpaths.lua find the path arguments and formats them into a C file that is included by the cwrapper

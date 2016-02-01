@@ -1332,7 +1332,7 @@ static void embeddedcode(LexState * ls, int isterra, int isexp) {
     data.step = (isexp || isterra) ? 0 : 1; //is the string we captured an expression? it is if we captured a quote (terra.definequote(...)) or a lua expression
     luaX_getoutput(ls, &begintoken, &data.data, &data.N);
     
-    if(lua_load(ls->L, expr_reader, &data, "$terra$") != 0) {
+    if(lua_load(ls->L, expr_reader, &data, "$terra$", NULL) != 0) {
         //we already parsed this buffer, so this should rarely cause an error
         //we need to find the line number in the error string, add it to where we began this line,
         //and then report the error with the correct line number
